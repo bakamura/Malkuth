@@ -49,7 +49,7 @@ namespace Malkuth.Player {
         private IEnumerator MoveRoutine(bool isUp) {
             _heightTarget = isUp ? _heightTop : _heightBottom;
             while (_motionProgress < 1f) {
-                _motionProgress += Time.deltaTime / _baseDuration;
+                _motionProgress += Time.deltaTime / _baseDuration; // Change to check game speed
                 _positionCache[1] = Mathf.LerpUnclamped(_heightMid, _heightTarget, _motionCurve.Evaluate(_motionProgress));
                 transform.position = _positionCache;
 
