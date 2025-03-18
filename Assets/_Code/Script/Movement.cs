@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Default;
 
 namespace Malkuth.Player {
     public class Movement : MonoBehaviour {
@@ -17,9 +18,7 @@ namespace Malkuth.Player {
 
         [SerializeField] private InputActionReference _actionUp;
         [SerializeField] private InputActionReference _actionDown;
-        [SerializeField, Min(0f)] private float _queuedInputDuration;
-        private bool _queuedInput;
-        private float _queueTime;
+        [SerializeField] private InputQueue<bool> _moveQueue;
 
         [Header("Cache")]
 
@@ -38,8 +37,8 @@ namespace Malkuth.Player {
         }
 
         private void TryMove(bool isUp) {
-            if(_motionProgress == 0) Move(isUp);
-            else QueueMove(isUp);
+            if (_motionProgress == 0) Move(isUp);
+            else _moveQueue.Queue(isUp);
         }
 
         private void Move(bool isUp) {
@@ -58,21 +57,12 @@ namespace Malkuth.Player {
             _positionCache[1] = _heightMid;
             transform.position = _positionCache;
             _motionProgress = 0;
-            TryDequeue();
-        }
-
-        private void QueueMove(bool isUp) {
-            _queuedInput = isUp;
-            _queueTime = Time.time;
-        }
-
-        private void TryDequeue() {
-            if((Time.time - _queueTime) < _queuedInputDuration) Move(_queuedInput);
+            _moveQueue.TryDequeue(Move);
         }
 
 #if UNITY_EDITOR
         private void OnValidate() {
-            if(_queuedInputDuration > _baseDuration) _queuedInputDuration = _baseDuration;
+            if(_moveQueue.queuedInputDuration > _baseDuration) _moveQueue.queuedInputDuration = _baseDuration;
         }
 #endif
 
