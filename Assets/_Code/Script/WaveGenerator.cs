@@ -10,9 +10,19 @@ namespace Malkuth.Wave {
         [SerializeField, Min(0f)] private float _baseDelayMin;
         [SerializeField, Min(0f)] private float _baseDelayMax;
         [SerializeField] private GameObject[] _waveTemplates;
+        [SerializeField] private float _waveDespawnLimit;
+
+        private void Awake() {
+            if (_waveTemplates.Length == 0) Debug.LogError("No wave template is set in 'WaveGenerator'!");
+        }
 
         private void Update() {
-            for(int i = 0; i < transform.childCount; i++) transform.GetChild(i).Translate(Vector3.left * _baseSpeed * Time.deltaTime); // Debug
+            int i = 0;
+            while (i < transform.childCount) {
+                transform.GetChild(i).Translate(Vector3.left * _baseSpeed * Time.deltaTime); // Debug / To Optimize
+                if (transform.GetChild(i).position.x < _waveDespawnLimit) Destroy(transform.GetChild(i).gameObject);
+                i++;
+            }
         }
 
         [ContextMenu("Start")]
